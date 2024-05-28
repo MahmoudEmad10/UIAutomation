@@ -1,7 +1,7 @@
 Feature: Purchase Checkout Flow
 
   Scenario Outline: Successful checkout with different users
-    Given I open the browser and navigate to the site
+#    Given I open the browser and navigate to the site
     When I login with username "<username>" and password "<password>"
     Then I should be on the products page
     When I add the most expensive two products to the cart

@@ -5,7 +5,7 @@ import io.cucumber.testng.CucumberOptions;
 import org.testng.annotations.DataProvider;
 
 @CucumberOptions(
-        features = "src/test/java/Scenarios",
+        features = "src/test/java/Scenarios/Purchase",
         glue = "Scenarios",
         plugin = {"pretty", "html:target/cucumber-reports.html"}
 )

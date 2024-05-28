@@ -1,22 +1,14 @@
-package Scenarios;
+package Scenarios.Purchase;
 
+import Scenarios.Hooks;
 import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.*;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import pages.*;
 
-import java.io.FileReader;
-import java.util.List;
-import java.util.Map;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
-
 public class purchaseStepDef {
+    private Hooks hooks = new Hooks();
     private WebDriver driver;
     private LoginPage loginPage;
     private InventoryPage inventoryPage;
@@ -25,36 +17,16 @@ public class purchaseStepDef {
     private OverviewPage overviewPage;
     private CompletePage completePage;
 
-    @Given("I open the browser and navigate to the site")
-    public void openBrowserAndNavigateToSite() throws Exception {
-        // Load configuration
-        String configFile = "src/test/resources/config.properties";
-        java.util.Properties prop = new java.util.Properties();
-        prop.load(new FileReader(configFile));
-        String browser = prop.getProperty("browser");
-        String url = prop.getProperty("url");
-
-        // Setup WebDriver
-        if (browser.equalsIgnoreCase("chrome")) {
-          WebDriverManager.chromedriver().clearDriverCache();
-            WebDriverManager.chromedriver().setup();
-            driver = new ChromeDriver();
-        } else if (browser.equalsIgnoreCase("edge")) {
-            WebDriverManager.edgedriver().clearDriverCache();
-            WebDriverManager.edgedriver().setup();
-            driver = new EdgeDriver();
-        }
-
-        // Initialize pages
-        loginPage = new LoginPage(driver);
-        inventoryPage = new InventoryPage(driver);
-        cartPage = new CartPage(driver);
-        checkoutPage = new CheckoutPage(driver);
-        overviewPage = new OverviewPage(driver);
-        completePage = new CompletePage(driver);
-
-        // Open URL
-        driver.get(url);
+    @Before
+    public void setUp() {
+        hooks.setUp();
+        this.driver = hooks.getTestSetup().getDriver();
+        this.loginPage = hooks.getTestSetup().getLoginPage();
+        this.inventoryPage = hooks.getTestSetup().getInventoryPage();
+        this.cartPage = hooks.getTestSetup().getCartPage();
+        this.checkoutPage = hooks.getTestSetup().getCheckoutPage();
+        this.overviewPage = hooks.getTestSetup().getOverviewPage();
+        this.completePage = hooks.getTestSetup().getCompletePage();
     }
 
     @When("I login with username {string} and password {string}")
@@ -123,18 +95,13 @@ public class purchaseStepDef {
     }
 
     @Then("I should see the {string} and {string} messages")
-    public void verifyCompletionMessages(String thankYouMessage, String orderDispatchedMessage) throws InterruptedException {
-        Thread.sleep(2000);
+    public void verifyCompletionMessages(String thankYouMessage, String orderDispatchedMessage) {
         assert completePage.getThankYouMessage().equals(thankYouMessage);
-        Thread.sleep(2000);
         assert completePage.getOrderDispatchedMessage().equals(orderDispatchedMessage);
-        Thread.sleep(2000);
     }
 
     @After
     public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
+        hooks.tearDown();
     }
 }
