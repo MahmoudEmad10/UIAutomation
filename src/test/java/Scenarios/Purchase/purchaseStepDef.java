@@ -1,33 +1,20 @@
 package Scenarios.Purchase;
 
-import Scenarios.Hooks;
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
+import DriverFactory.DriverFactory;
+import DriverFactory.Util;
 import io.cucumber.java.en.*;
-import org.openqa.selenium.WebDriver;
+import org.testng.Assert;
 import pages.*;
 
 public class purchaseStepDef {
-    private Hooks hooks = new Hooks();
-    private WebDriver driver;
-    private LoginPage loginPage;
-    private InventoryPage inventoryPage;
-    private CartPage cartPage;
-    private CheckoutPage checkoutPage;
-    private OverviewPage overviewPage;
-    private CompletePage completePage;
 
-    @Before
-    public void setUp() {
-        hooks.setUp();
-        this.driver = hooks.getTestSetup().getDriver();
-        this.loginPage = hooks.getTestSetup().getLoginPage();
-        this.inventoryPage = hooks.getTestSetup().getInventoryPage();
-        this.cartPage = hooks.getTestSetup().getCartPage();
-        this.checkoutPage = hooks.getTestSetup().getCheckoutPage();
-        this.overviewPage = hooks.getTestSetup().getOverviewPage();
-        this.completePage = hooks.getTestSetup().getCompletePage();
-    }
+    LoginPage loginPage = new LoginPage(DriverFactory.getDriver());
+    InventoryPage inventoryPage = new InventoryPage(DriverFactory.getDriver());
+    CartPage cartPage = new CartPage(DriverFactory.getDriver());
+    CheckoutPage checkoutPage = new CheckoutPage(DriverFactory.getDriver());
+    OverviewPage overviewPage = new OverviewPage(DriverFactory.getDriver());
+    CompletePage completePage = new CompletePage(DriverFactory.getDriver());
+    Util util = new Util(DriverFactory.getDriver());
 
     @When("I login with username {string} and password {string}")
     public void login(String username, String password) {
@@ -36,7 +23,7 @@ public class purchaseStepDef {
 
     @Then("I should be on the products page")
     public void verifyLogin() {
-        assert loginPage.isLoggedIn();
+        Assert.assertTrue(loginPage.isLoggedIn());
     }
 
     @When("I add the most expensive two products to the cart")
@@ -51,7 +38,7 @@ public class purchaseStepDef {
 
     @Then("I should be on the cart page and see the selected products")
     public void verifyCartPage() {
-        assert cartPage.isCartPageDisplayed();
+        Assert.assertTrue(cartPage.isCartPageDisplayed());
     }
 
     @When("I click on the checkout button")
@@ -61,7 +48,7 @@ public class purchaseStepDef {
 
     @Then("I should be on the checkout page")
     public void verifyCheckoutPage() {
-        assert checkoutPage.isCheckoutPageDisplayed();
+        Assert.assertTrue(checkoutPage.isCheckoutPageDisplayed());
     }
 
     @When("I fill the checkout form with {string} {string} {string}")
@@ -76,17 +63,18 @@ public class purchaseStepDef {
 
     @Then("I should be on the overview page")
     public void verifyOverviewPage() {
-        assert overviewPage.isOverviewPageDisplayed();
+        Assert.assertTrue(overviewPage.isOverviewPageDisplayed());
     }
 
     @Then("the items total amount before taxes should be correct")
     public void verifyItemsTotalAmount() {
-        assert overviewPage.isItemTotalCorrect();
+        Assert.assertTrue(overviewPage.isItemTotalCorrect());
     }
 
     @Then("the URL should be {string}")
     public void verifyURL(String expectedURL) {
-        assert driver.getCurrentUrl().equals(expectedURL);
+       String actualUrl = util.getCurrentURL();
+        Assert.assertEquals(actualUrl,expectedURL,"Url mismatch");
     }
 
     @When("I click on the finish button")
@@ -100,8 +88,4 @@ public class purchaseStepDef {
         assert completePage.getOrderDispatchedMessage().equals(orderDispatchedMessage);
     }
 
-    @After
-    public void tearDown() {
-        hooks.tearDown();
-    }
 }

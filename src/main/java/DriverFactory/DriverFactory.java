@@ -1,46 +1,42 @@
 package DriverFactory;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+import org.openqa.selenium.support.ui.Select;
 
 public class DriverFactory {
-    private WebDriver driver;
-    private Properties prop;
 
-    public DriverFactory() {
-        prop = new Properties();
-        try (FileInputStream fis = new FileInputStream("src/test/resources/config.properties")) {
-            prop.load(fis);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    public WebDriver driver;
 
-    public WebDriver initializeDriver() {
-        String browser = prop.getProperty("browser");
-        if (browser.equalsIgnoreCase("chrome")) {
+    public static ThreadLocal<WebDriver> tlDriver= new ThreadLocal<>();
+    /*
+    this method is used to initialize the driver and return tldriver
+     */
+    public WebDriver init_Driver (String browser){
+        System.out.println("Browser value is: "+ browser);
+        if (browser.equalsIgnoreCase("chrome")){
+            WebDriverManager.chromedriver ().clearDriverCache ();
             WebDriverManager.chromedriver().setup();
-            driver = new ChromeDriver();
-        } else if (browser.equalsIgnoreCase("firefox")) {
-            WebDriverManager.firefoxdriver().setup();
-            driver = new FirefoxDriver();
-        } else if (browser.equalsIgnoreCase("edge")) {
-            WebDriverManager.edgedriver().setup();
-            driver = new EdgeDriver();
-            driver.manage().deleteAllCookies();
-            driver.manage().window().maximize();
+            tlDriver.set(new ChromeDriver());
         }
-        return driver;
+        else if (browser.equalsIgnoreCase("edge")){
+            WebDriverManager.edgedriver().setup();
+            tlDriver.set(new EdgeDriver());
+        }
+        else {
+            System.out.println("Wrong Browser Value");
+        }
+        getDriver().manage().deleteAllCookies();
+        getDriver().manage().window().maximize();
+        return getDriver();
     }
 
-    public String getUrl() {
-        return prop.getProperty("url");
+    public static WebDriver getDriver(){
+        return tlDriver.get();
     }
+
 }

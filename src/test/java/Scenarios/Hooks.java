@@ -4,29 +4,32 @@ import DriverFactory.DriverFactory;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import org.openqa.selenium.WebDriver;
-import pages.*;
-import util.TestSetup;
+import util.ConfigReader;
+import java.util.Properties;
 
 public class Hooks {
-    private DriverFactory driverFactory;
-    private WebDriver driver;
-    private TestSetup testSetup;
 
+    public DriverFactory driverFactory;
+    public WebDriver driver;
+    Properties prop;
+    public ConfigReader configReader;
     @Before(order = 0)
-    public void setUp() {
+    public void getProperty() {
+        configReader = new ConfigReader();
+        prop = configReader.init_Prop();
+    }
+
+    @Before(order = 1)
+    public void launchBrowser() {
+        String browser = prop.getProperty("browser");
+        String url = prop.getProperty("url");
         driverFactory = new DriverFactory();
-        driver.get(driverFactory.getUrl());
-       //testSetup = new TestSetup(driver);
+        driver = driverFactory.init_Driver(browser);
+        driver.get(url);
     }
 
-    @After(order = 1)
-    public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
-    }
-
-    public TestSetup getTestSetup() {
-        return testSetup;
+    @After(order = 0)
+    public void quitBrowser() {
+        driver.quit();
     }
 }
